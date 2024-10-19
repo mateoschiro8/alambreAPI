@@ -1,21 +1,23 @@
 package com.alambre.models;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class Order {
     private UUID id;
     private List<OrderItem> items;
-    private OrderStatus status;
-    private UUID restaurantId;
-    private UUID clientId;  
+    private OrderStatus status;  
+    // TODO cambiar a que customer y table sean polimorficos, o dejar un solo id y dejar un OrderType (delivery o presencial)
+    private Optional<UUID> customerID;
+    private Optional<UUID> tableID;  
 
-    public Order(UUID restaurantId, UUID clientId, List<OrderItem> items) {
+    public Order(Optional<UUID> customerID, Optional<UUID> tableID, List<OrderItem> items) {
         this.id = UUID.randomUUID();
-        this.restaurantId = restaurantId;
-        this.clientId = clientId;
         this.items = items;
         this.status = OrderStatus.CREATED;
+        this.customerID = customerID;
+        this.tableID = tableID;        
     }
 
     public UUID getId() {

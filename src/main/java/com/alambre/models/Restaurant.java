@@ -11,17 +11,34 @@ public class Restaurant {
     private Coordinate location;
     private Menu menu;
     private List<Order> orders;
+    // TODO cambiar a que table y customer sean polimorficos
+    private List<Table> tables;
+    private List<OnlineCustomer> onlineCustomers;
 
-    public Restaurant(int id, String name, Coordinate location, Menu menu) {
+    // TODO agrgegar info del local (horarios, datos de contacto, fotos/logo)
+
+    public Restaurant(RestaurantInput input) {
         this.id = UUID.randomUUID();
-        this.name = name;
-        this.location = location;
-        this.menu = menu;
+        this.name = input.getName();
+        this.location = input.getLocation();
+        this.menu = input.getMenu();
         this.orders = new ArrayList<>();
+
+        List<Table> tables = new ArrayList<>();
+        for (int i = 0; i < input.getNumberOfTables(); i++) {
+            tables.add(new Table());
+        }
+        this.tables = tables;
+
+        this.onlineCustomers = new ArrayList<>();
     }
 
-    public UUID getId() {
+    public UUID getID() {
         return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -69,5 +86,15 @@ public class Restaurant {
         }
     }
 
+    public List<Table> getTables() {
+        return this.tables;
+    }
 
+    public List<OnlineCustomer> getCustomers() {
+        return this.onlineCustomers;
+    }
+
+    public void addCustomer(OnlineCustomer customer) {
+        this.onlineCustomers.add(customer);
+    }
 }
