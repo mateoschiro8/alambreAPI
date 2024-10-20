@@ -97,4 +97,8 @@ public class Restaurant {
     public void addCustomer(OnlineCustomer customer) {
         this.onlineCustomers.add(customer);
     }
+
+    public boolean isNear(Coordinate coordinate) {
+        return location.calculateDistanceTo(coordinate.getLatitude(), coordinate.getLongitude()) <= 50;
+    }
 }

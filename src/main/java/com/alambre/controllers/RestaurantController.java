@@ -1,13 +1,6 @@
 package com.alambre.controllers;
 
-import com.alambre.models.Order;
-import com.alambre.models.OrderItem;
-import com.alambre.models.OrderStatus;
-import com.alambre.models.Restaurant;
-import com.alambre.models.RestaurantInput;
-import com.alambre.models.Table;
-import com.alambre.models.Menu;
-import com.alambre.models.OnlineCustomer;
+import com.alambre.models.*;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/restaurants")
@@ -26,13 +20,22 @@ public class RestaurantController {
 
     private ConcurrentHashMap<UUID, Restaurant> restaurants = new ConcurrentHashMap<>();
 
-    @GetMapping("/")
-    public List<Restaurant> getRestaurants() {
-        // TODO aca meter un filtro por location
-        return List.copyOf(restaurants.values());
+    @GetMapping("")
+    public List<Restaurant> getRestaurants(@RequestParam(required = false) Boolean aplicarFiltro,
+                                           @RequestParam(required = false) Double latitud,
+                                           @RequestParam(required = false) Double longitud) {
+
+        List<Restaurant> restaurantsToReturn =  List.copyOf(restaurants.values());
+
+        if(aplicarFiltro && latitud != null && longitud != null)
+            restaurantsToReturn = restaurantsToReturn.stream()
+                .filter(restaurant -> restaurant.isNear(new Coordinate(latitud, longitud)))
+                .toList();
+
+        return restaurantsToReturn;
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     public void addRestaurant(@RequestBody RestaurantInput restaurantInput) {
         Restaurant restaurant = new Restaurant(restaurantInput);       
         restaurants.put(restaurant.getID(), restaurant);
