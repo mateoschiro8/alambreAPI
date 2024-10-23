@@ -7,28 +7,33 @@ import java.util.UUID;
 public class Restaurant {
 
     private UUID id;
+
     private String name;
+    private String number;
     private Coordinate location;
+    private List<String> images;
+
     private Menu menu;
     private List<Order> orders;
     // TODO cambiar a que table y customer sean polimorficos
     private List<Table> tables;
     private List<OnlineCustomer> onlineCustomers;
 
-    // TODO agrgegar info del local (horarios, datos de contacto, fotos/logo)
-
+    // TODO agrgegar info del local (horarios)
     public Restaurant(RestaurantInput input) {
         this.id = UUID.randomUUID();
         this.name = input.getName();
+        this.number = input.getNumber();
         this.location = input.getLocation();
+        this.images = input.getImages();
+
         this.menu = input.getMenu();
         this.orders = new ArrayList<>();
 
-        List<Table> tables = new ArrayList<>();
+        this.tables = new ArrayList<>();
         for (int i = 0; i < input.getNumberOfTables(); i++) {
-            tables.add(new Table());
+            this.tables.add(new Table());
         }
-        this.tables = tables;
 
         this.onlineCustomers = new ArrayList<>();
     }
@@ -49,12 +54,24 @@ public class Restaurant {
         this.name = nombre;
     }
 
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
     public Coordinate getLocation() {
         return location;
     }
     public void setLocation(Coordinate location) {
         this.location = location;
     }
+
+    public List<String> getImages() { return images; }
+
+    public void setImages(List<String> images) { this.images = images; }
 
     public Menu getMenu() {
         return menu;

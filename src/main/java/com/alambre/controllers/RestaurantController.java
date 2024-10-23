@@ -21,13 +21,11 @@ public class RestaurantController {
     private ConcurrentHashMap<UUID, Restaurant> restaurants = new ConcurrentHashMap<>();
 
     @GetMapping("")
-    public List<Restaurant> getRestaurants(@RequestParam(required = false) Boolean aplicarFiltro,
-                                           @RequestParam(required = false) Double latitud,
-                                           @RequestParam(required = false) Double longitud) {
+    public List<Restaurant> getRestaurants(@RequestParam(required = false) Double latitud, @RequestParam(required = false) Double longitud) {
 
         List<Restaurant> restaurantsToReturn =  List.copyOf(restaurants.values());
 
-        if(aplicarFiltro && latitud != null && longitud != null)
+        if(latitud != null && longitud != null)
             restaurantsToReturn = restaurantsToReturn.stream()
                 .filter(restaurant -> restaurant.isNear(new Coordinate(latitud, longitud)))
                 .toList();
