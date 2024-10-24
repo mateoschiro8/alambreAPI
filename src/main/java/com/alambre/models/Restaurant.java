@@ -13,7 +13,7 @@ public class Restaurant {
     private Coordinate location;
     private List<String> images;
 
-    private Menu menu;
+    private List<MenuItem> menu;
     private List<Order> orders;
     // TODO cambiar a que table y customer sean polimorficos
     private List<Table> tables;
@@ -73,11 +73,11 @@ public class Restaurant {
 
     public void setImages(List<String> images) { this.images = images; }
 
-    public Menu getMenu() {
+    public List<MenuItem> getMenu() {
         return menu;
     }
 
-    public void setMenu(Menu menu) {
+    public void setMenu(List<MenuItem> menu) {
         this.menu = menu;
     }
 

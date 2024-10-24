@@ -7,10 +7,10 @@ public class RestaurantInput {
     private Coordinate location;
     private String number;
     private List<String> images;
-    private Menu menu; 
+    private List<MenuItem> menu; 
     private int numberOfTables; 
 
-    public RestaurantInput(String name, String number, Coordinate location, List<String> images, Menu menu, int numberOfTables) {
+    public RestaurantInput(String name, String number, Coordinate location, List<String> images, List<MenuItem> menu, int numberOfTables) {
         this.name = name;
         this.number = number;
         this.location = location;
@@ -43,11 +43,11 @@ public class RestaurantInput {
 
     public void setImages(List<String> images) { this.images = images; }
 
-    public Menu getMenu() {
+    public List<MenuItem> getMenu() {
         return menu;
     }
 
-    public void setMenu(Menu menu) {
+    public void setMenu(List<MenuItem> menu) {
         this.menu = menu;
     }
 

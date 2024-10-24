@@ -46,7 +46,7 @@ public class RestaurantController {
 
     // Aca habria que pegarle desde el qr, o ver de armar otro endpoint
     @GetMapping("/{restaurantID}/menu")
-    public Menu getMenu(@PathVariable UUID restaurantID) {
+    public List<MenuItem> getMenu(@PathVariable UUID restaurantID) {
         return findRestaurantById(restaurantID).map(Restaurant::getMenu).orElse(null);
     }
 
