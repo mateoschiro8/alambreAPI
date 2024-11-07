@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.alambre.models.OrderStatus;
+
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/restaurants")
@@ -70,6 +72,8 @@ public class RestaurantController {
 
     @PatchMapping("/{restaurantID}/orders/{orderID}")
     public void updateOrderStatus(@PathVariable UUID restaurantID, @PathVariable UUID orderID, @RequestBody OrderStatus newStatus) {
+        
+        Optional<Restaurant> rest = findRestaurantById(restaurantID);
         Optional<Order> orderOptional = findRestaurantById(restaurantID)
                 .flatMap(restaurant -> restaurant.getOrders().stream()
                         .filter(order -> order.getId().equals(orderID))
@@ -77,6 +81,8 @@ public class RestaurantController {
 
         if (orderOptional.isPresent()) {
             orderOptional.get().updateStatus(newStatus);
+            if(newStatus == OrderStatus.DELIVERED)
+                rest.get().emptyTable(orderID);     
         } else {
             throw new IllegalStateException("Order not found");
         }

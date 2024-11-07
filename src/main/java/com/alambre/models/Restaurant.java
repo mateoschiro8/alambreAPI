@@ -1,5 +1,6 @@
 package com.alambre.models;
 
+import java.rmi.server.UID;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,8 @@ public class Restaurant {
     private Integer maxTables;
     private HashMap <Integer,UUID> tables;
 
+    private UUID emptyTableUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
     // TODO agrgegar info del local (horarios)
     public Restaurant(RestaurantInput input) {
         this.id = UUID.randomUUID();
@@ -34,17 +37,34 @@ public class Restaurant {
 
         this.maxTables = input.getNumberOfTables();
         this.tables = new HashMap<>();
+
+        for(int i = 1; i <= this.maxTables; i++) {
+            this.tables.put(i, emptyTableUUID);
+        }
     }
 
     public boolean addOrder(OrderInput input) {
 
-        if(this.tables.containsKey(input.getTableNumber()))
+        // TODO mesa 0
+
+        if(!(this.tables.get(input.getTableNumber()) == this.emptyTableUUID) || input.getTableNumber() > this.maxTables)
             return false;
 
         Order order = new Order(input);
         this.orders.add(order);
         this.tables.put(input.getTableNumber(), order.getId());
         return true;
+    }
+
+    public void emptyTable(UUID orderID) {
+        
+        Order orderToUpdate;
+        for(int i = 0; i < this.orders.size(); i++) {
+            if(this.orders.get(i).getId() == orderID)
+                orderToUpdate = this.orders.get(i);
+        }   
+        
+        this.tables.put(orderToUpdate.getTableNumber(), this.emptyTableUUID);
     }
 
     public Order getOrderById(UUID orderId) {
