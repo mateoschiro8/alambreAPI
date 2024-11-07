@@ -1,6 +1,7 @@
 package com.alambre.models;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,27 +16,53 @@ public class Restaurant {
 
     private List<MenuItem> menu;
     private List<Order> orders;
-    // TODO cambiar a que table y customer sean polimorficos
-    private List<Table> tables;
-    private List<OnlineCustomer> onlineCustomers;
+
+    private Integer maxTables;
+    private HashMap <Integer,UUID> tables;
 
     // TODO agrgegar info del local (horarios)
     public Restaurant(RestaurantInput input) {
         this.id = UUID.randomUUID();
+
         this.name = input.getName();
         this.number = input.getNumber();
         this.location = input.getLocation();
         this.images = input.getImages();
-
         this.menu = input.getMenu();
+
         this.orders = new ArrayList<>();
 
-        this.tables = new ArrayList<>();
-        for (int i = 0; i < input.getNumberOfTables(); i++) {
-            this.tables.add(new Table());
-        }
+        this.maxTables = input.getNumberOfTables();
+        this.tables = new HashMap<>();
+    }
 
-        this.onlineCustomers = new ArrayList<>();
+    public boolean addOrder(OrderInput input) {
+
+        if(this.tables.containsKey(input.getTableNumber()))
+            return false;
+
+        Order order = new Order(input);
+        this.orders.add(order);
+        this.tables.put(input.getTableNumber(), order.getId());
+        return true;
+    }
+
+    public Order getOrderById(UUID orderId) {
+        return this.orders.stream()
+                .filter(order -> order.getId().equals(orderId))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void updateOrderStatus(UUID orderId, OrderStatus newStatus) {
+        Order order = this.getOrderById(orderId);
+        if (order != null) {
+            order.updateStatus(newStatus);
+        }
+    }
+
+    public boolean isNear(Coordinate coordinate) {
+        return location.calculateDistanceTo(coordinate.getLatitude(), coordinate.getLongitude()) <= 50;
     }
 
     public UUID getID() {
@@ -50,8 +77,8 @@ public class Restaurant {
         return name;
     }
 
-    public void setName(String nombre) {
-        this.name = nombre;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getNumber() {
@@ -65,6 +92,7 @@ public class Restaurant {
     public Coordinate getLocation() {
         return location;
     }
+
     public void setLocation(Coordinate location) {
         this.location = location;
     }
@@ -85,37 +113,4 @@ public class Restaurant {
         return orders;
     }
 
-    public void addOrder(Order order) {
-        this.orders.add(order);
-    }
-
-    public Order getOrderById(UUID orderId) {
-        return this.orders.stream()
-            .filter(order -> order.getId().equals(orderId))
-            .findFirst()
-            .orElse(null);
-    }
-
-    public void updateOrderStatus(UUID orderId, OrderStatus newStatus) {
-        Order order = this.getOrderById(orderId);
-        if (order != null) {
-            order.updateStatus(newStatus);
-        }
-    }
-
-    public List<Table> getTables() {
-        return this.tables;
-    }
-
-    public List<OnlineCustomer> getCustomers() {
-        return this.onlineCustomers;
-    }
-
-    public void addCustomer(OnlineCustomer customer) {
-        this.onlineCustomers.add(customer);
-    }
-
-    public boolean isNear(Coordinate coordinate) {
-        return location.calculateDistanceTo(coordinate.getLatitude(), coordinate.getLongitude()) <= 50;
-    }
 }
