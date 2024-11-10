@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.alambre.models.OrderStatus;
-
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/restaurants")
@@ -51,6 +49,13 @@ public class RestaurantController {
     @GetMapping("/{restaurantID}/menu")
     public List<MenuItem> getMenu(@PathVariable Integer restaurantID) {
         return findRestaurantById(restaurantID).map(Restaurant::getMenu).orElse(null);
+    }
+
+    @GetMapping("/{restaurantID}/qrs")
+    public List<String> getQRImages(@PathVariable Integer restaurantID) {
+        return findRestaurantById(restaurantID)
+                .map(Restaurant::getQRs)
+                .orElse(null);
     }
 
     @GetMapping("/{restaurantID}/orders")

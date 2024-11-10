@@ -18,6 +18,7 @@ public class Restaurant {
 
     private List<MenuItem> menu;
     private List<Order> orders;
+    private List<String> qrs;
 
     private HashMap <Integer,Integer> tableOrders;
 
@@ -36,9 +37,22 @@ public class Restaurant {
         this.orders = new ArrayList<>();
 
         this.tableOrders = new HashMap<>();
+        this.qrs = new ArrayList<>();
 
         for(int i = 1; i <= input.getNumberOfTables(); i++) {
-            this.tableOrders.put(i, 0);
+              this.tableOrders.put(i, 0);
+              this.generateTableQR(i);
+        }
+    }
+
+    public void generateTableQR(Integer tableID) {
+        String frontBaseURL = "urlFront";
+        
+        String url = String.format("%s/user/order/%d?table=&d", frontBaseURL, this.getID(), tableID);
+
+        String fileName = this.getName() + "/table_" + tableID;
+        if (QRGenerator.getInstance().saveQRCodeImage(url, fileName)) {
+            this.qrs.add("/qrcodes/" + fileName + ".png");
         }
     }
 
@@ -144,4 +158,5 @@ public class Restaurant {
 
     public void setClosingTime(String closingTime) { this.closingTime = closingTime; }
 
+    public List<String> getQRs() { return qrs; }
 }
