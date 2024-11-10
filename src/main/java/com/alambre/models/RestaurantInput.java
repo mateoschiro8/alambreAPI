@@ -45,7 +45,7 @@ public class RestaurantInput {
         this.location = location;
     }
 
-    public List<String> getLogoUrl() { return logoUrl; }
+    public String getLogoUrl() { return logoUrl; }
 
     public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
     

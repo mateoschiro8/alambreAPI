@@ -46,7 +46,7 @@ public class Restaurant {
         Integer tableNumber = input.getTableNumber();
 
         if (tableNumber != 0) {
-            if(input.getTableNumber() > this.tableOrders.size() || !(this.tableOrders.get(tableNumber) == 0) || !this.isNear(input.userLocation))
+            if(input.getTableNumber() > this.tableOrders.size() || !(this.tableOrders.get(tableNumber) == 0) || !this.isNear(input.getUserLocation()))
                 return false;
         }
 
