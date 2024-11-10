@@ -1,17 +1,16 @@
 package com.alambre.models;
 
 import java.util.List;
-import java.util.UUID;
 
 public class Order {
-    private UUID id;
+    private Integer id;
     private List<OrderItem> items;
     private OrderStatus status;  
 
     private Integer tableNumber;
 
-    public Order(OrderInput input) {
-        this.id = UUID.randomUUID();
+    public Order(OrderInput input, Integer orderID) {
+        this.id = orderID;
         this.items = input.getItems();
         this.status = OrderStatus.CREATED;
         this.tableNumber = input.getTableNumber();
@@ -28,7 +27,7 @@ public class Order {
         }
     }
 
-    public UUID getId() {
+    public Integer getId() {
         return id;
     }
 

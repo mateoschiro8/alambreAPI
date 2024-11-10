@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.alambre.models.OrderStatus;
@@ -16,7 +15,7 @@ import com.alambre.models.OrderStatus;
 @RequestMapping("/restaurants")
 public class RestaurantController {
 
-    private ConcurrentHashMap<UUID, Restaurant> restaurants = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, Restaurant> restaurants = new ConcurrentHashMap<>();
 
     @GetMapping("")
     public List<Restaurant> getRestaurants(@RequestParam(required = false) Double latitude, @RequestParam(required = false) Double longitude) {
@@ -34,35 +33,35 @@ public class RestaurantController {
 
     @PostMapping("")
     public void addRestaurant(@RequestBody RestaurantInput restaurantInput) {
-        Restaurant restaurant = new Restaurant(restaurantInput);       
+        Restaurant restaurant = new Restaurant(restaurants.size() + 1, restaurantInput);       
         restaurants.put(restaurant.getID(), restaurant);
     }
 
     @GetMapping("/{restaurantID}")
-    public Restaurant getRestaurant(@PathVariable UUID restaurantID) {
+    public Restaurant getRestaurant(@PathVariable Integer restaurantID) {
         return findRestaurantById(restaurantID).orElse(null);
     }
 
     // Aca habria que pegarle desde el qr, o ver de armar otro endpoint
     @GetMapping("/{restaurantID}/menu")
-    public List<MenuItem> getMenu(@PathVariable UUID restaurantID) {
+    public List<MenuItem> getMenu(@PathVariable Integer restaurantID) {
         return findRestaurantById(restaurantID).map(Restaurant::getMenu).orElse(null);
     }
 
     @GetMapping("/{restaurantID}/orders")
-    public List<Order> getRestaurantOrders(@PathVariable UUID restaurantID) {
+    public List<Order> getRestaurantOrders(@PathVariable Integer restaurantID) {
         return findRestaurantById(restaurantID).map(Restaurant::getOrders).orElse(null);
     }
 
     @PostMapping("/{restaurantID}/orders")
-    public boolean addOrder(@PathVariable UUID restaurantID, @RequestBody OrderInput orderInput) {
+    public boolean addOrder(@PathVariable Integer restaurantID, @RequestBody OrderInput orderInput) {
         return findRestaurantById(restaurantID)
                 .map(restaurant -> restaurant.addOrder(orderInput))
                 .orElse(false);
     }
     
     @GetMapping("/{restaurantID}/orders/{orderID}")
-    public Order getOrder(@PathVariable UUID restaurantID, @PathVariable UUID orderID) {
+    public Order getOrder(@PathVariable Integer restaurantID, @PathVariable Integer orderID) {
         return findRestaurantById(restaurantID)
                 .flatMap(restaurant -> restaurant.getOrders().stream()
                         .filter(order -> order.getId().equals(orderID))
@@ -71,9 +70,9 @@ public class RestaurantController {
     }
 
     @PatchMapping("/{restaurantID}/orders/{orderID}")
-    public void updateOrderStatus(@PathVariable UUID restaurantID, @PathVariable UUID orderID, @RequestBody OrderStatus newStatus) {
+    public void updateOrderStatus(@PathVariable Integer restaurantID, @PathVariable Integer orderID, @RequestBody OrderStatus newStatus) {
         
-        Optional<Restaurant> rest = findRestaurantById(restaurantID);
+        Optional<Restaurant> resto = findRestaurantById(restaurantID);
         Optional<Order> orderOptional = findRestaurantById(restaurantID)
                 .flatMap(restaurant -> restaurant.getOrders().stream()
                         .filter(order -> order.getId().equals(orderID))
@@ -81,20 +80,19 @@ public class RestaurantController {
 
         if (orderOptional.isPresent()) {
             orderOptional.get().updateStatus(newStatus);
-            if(newStatus == OrderStatus.DELIVERED)
-                rest.get().emptyTable(orderID);     
+            
+            Integer tableID = orderOptional.get().getTableNumber();
+
+            if(newStatus == OrderStatus.DELIVERED && tableID != 0)
+                resto.get().emptyTable(tableID);     
         } else {
             throw new IllegalStateException("Order not found");
         }
     }
 
-    private Optional<Restaurant> findRestaurantById(UUID restaurantID) {
+    private Optional<Restaurant> findRestaurantById(Integer restaurantID) {
         return Optional.ofNullable(restaurants.get(restaurantID));
     }
-
-    // TODO endpoint desocupar una mesa
-
-
 
     /*
 

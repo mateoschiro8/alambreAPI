@@ -1,14 +1,12 @@
 package com.alambre.models;
 
-import java.rmi.server.UID;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 public class Restaurant {
 
-    private UUID id;
+    private Integer id;
 
     private String name;
     private String number;
@@ -21,13 +19,10 @@ public class Restaurant {
     private List<Order> orders;
 
     private Integer maxTables;
-    private HashMap <Integer,UUID> tables;
+    private HashMap <Integer,Integer> tables;
 
-    private UUID emptyTableUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
-
-    // TODO agrgegar info del local (horarios)
-    public Restaurant(RestaurantInput input) {
-        this.id = UUID.randomUUID();
+    public Restaurant(Integer restaurantID, RestaurantInput input) {
+        this.id = restaurantID;
 
         this.name = input.getName();
         this.number = input.getNumber();
@@ -43,42 +38,42 @@ public class Restaurant {
         this.tables = new HashMap<>();
 
         for(int i = 1; i <= this.maxTables; i++) {
-            this.tables.put(i, emptyTableUUID);
+            this.tables.put(i, 0);
         }
     }
 
     public boolean addOrder(OrderInput input) {
+        Integer tableNumber = input.getTableNumber();
 
-        // TODO mesa 0
+        if (tableNumber != 0) {
+            if(!(this.tables.get(tableNumber) == 0) || input.getTableNumber() > this.maxTables)
+                return false;
+        }
 
-        if(!(this.tables.get(input.getTableNumber()) == this.emptyTableUUID) || input.getTableNumber() > this.maxTables)
-            return false;
+        Integer orderID = this.orders.size() + 1;
 
-        Order order = new Order(input);
+        Order order = new Order(input, orderID);
         this.orders.add(order);
-        this.tables.put(input.getTableNumber(), order.getId());
+        
+        if (tableNumber != 0) {
+            this.tables.put(tableNumber, order.getId());
+        } 
+
         return true;
     }
 
-    public void emptyTable(UUID orderID) {
-        
-        Order orderToUpdate;
-        for(int i = 0; i < this.orders.size(); i++) {
-            if(this.orders.get(i).getId() == orderID)
-                orderToUpdate = this.orders.get(i);
-        }   
-        
-        this.tables.put(orderToUpdate.getTableNumber(), this.emptyTableUUID);
+    public void emptyTable(Integer tableID) {
+        this.tables.put(tableID, 0);
     }
 
-    public Order getOrderById(UUID orderId) {
+    public Order getOrderById(Integer orderID) {
         return this.orders.stream()
-                .filter(order -> order.getId().equals(orderId))
+                .filter(order -> order.getId().equals(orderID))
                 .findFirst()
                 .orElse(null);
     }
 
-    public void updateOrderStatus(UUID orderId, OrderStatus newStatus) {
+    public void updateOrderStatus(Integer orderId, OrderStatus newStatus) {
         Order order = this.getOrderById(orderId);
         if (order != null) {
             order.updateStatus(newStatus);
@@ -89,11 +84,11 @@ public class Restaurant {
         return location.calculateDistanceTo(coordinate.getLatitude(), coordinate.getLongitude()) <= 50;
     }
 
-    public UUID getID() {
+    public Integer getID() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

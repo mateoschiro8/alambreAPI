@@ -27,6 +27,6 @@ public enum OrderStatus {
     }
 
     public boolean shouldNotify() {
-        return this == READY_FOR_PICKUP || this == READY_TO_BE_SERVED;
+        return this == READY_FOR_PICKUP;
     }
 }
