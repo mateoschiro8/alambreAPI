@@ -11,6 +11,7 @@ public class Restaurant {
     private String name;
     private String number;
     private Coordinate location;
+    private String logoUrl;
     private List<String> images;
     private String openingTime;
     private String closingTime;
@@ -26,6 +27,7 @@ public class Restaurant {
         this.name = input.getName();
         this.number = input.getNumber();
         this.location = input.getLocation();
+        this.logoUrl = input.getLogoUrl();
         this.images = input.getImages();
         this.menu = input.getMenu();
         this.openingTime = input.getOpeningTime();
@@ -44,7 +46,7 @@ public class Restaurant {
         Integer tableNumber = input.getTableNumber();
 
         if (tableNumber != 0) {
-            if(!(this.tableOrders.get(tableNumber) == 0) || input.getTableNumber() > this.tableOrders.size())
+            if(input.getTableNumber() > this.tableOrders.size() || !(this.tableOrders.get(tableNumber) == 0) || !this.isNear(input.userLocation))
                 return false;
         }
 
@@ -113,6 +115,10 @@ public class Restaurant {
     public void setLocation(Coordinate location) {
         this.location = location;
     }
+
+    public String getLogoUrl() { return logoUrl; }
+
+    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
 
     public List<String> getImages() { return images; }
 

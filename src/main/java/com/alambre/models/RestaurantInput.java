@@ -6,16 +6,18 @@ public class RestaurantInput {
     private String name; 
     private Coordinate location;
     private String number;
+    private String logoUrl;
     private List<String> images;
     private List<MenuItem> menu; 
     private int numberOfTables; 
     private String openingTime;
     private String closingTime;
 
-    public RestaurantInput(String name, String number, Coordinate location, List<String> images, List<MenuItem> menu, int numberOfTables, String openingTime, String closingTime) {
+    public RestaurantInput(String name, String number, Coordinate location, String logoUrl, List<String> images, List<MenuItem> menu, int numberOfTables, String openingTime, String closingTime) {
         this.name = name;
-        this.number = number;
         this.location = location;
+        this.number = number;
+        this.logoUrl = logoUrl;
         this.images = images;
         this.menu = menu;
         this.numberOfTables = numberOfTables;
@@ -43,6 +45,10 @@ public class RestaurantInput {
         this.location = location;
     }
 
+    public List<String> getLogoUrl() { return logoUrl; }
+
+    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
+    
     public List<String> getImages() { return images; }
 
     public void setImages(List<String> images) { this.images = images; }

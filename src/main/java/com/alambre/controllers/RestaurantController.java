@@ -42,6 +42,11 @@ public class RestaurantController {
         return findRestaurantById(restaurantID).orElse(null);
     }
 
+    @DeleteMapping("")
+    public void emptyRestaurants() {
+        restaurants.clear();
+    }
+
     // Aca habria que pegarle desde el qr, o ver de armar otro endpoint
     @GetMapping("/{restaurantID}/menu")
     public List<MenuItem> getMenu(@PathVariable Integer restaurantID) {
@@ -93,88 +98,4 @@ public class RestaurantController {
     private Optional<Restaurant> findRestaurantById(Integer restaurantID) {
         return Optional.ofNullable(restaurants.get(restaurantID));
     }
-
-    /*
-
-    @PostMapping("/{restaurantID}/customers/{customerID}/orders")
-    public Order createOnlineCustomerOrder(@PathVariable UUID restaurantID, @PathVariable UUID customerID, @RequestBody List<OrderItem> items) {
-        Optional<Restaurant> restaurant = findRestaurantById(restaurantID);
-        Optional<OnlineCustomer> customer = findOnlineCustomerById(restaurantID, customerID);
-        if (restaurant.isPresent() && customer.isPresent()) {
-            // chequear que currentOrder sea null o este en estado delivered
-            Order newOrder = new Order(Optional.of(customerID), Optional.empty(), items);
-            restaurant.get().addOrder(newOrder);
-            customer.get().setCurrentOrder(newOrder);
-            return newOrder;
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found");
-    }
-
-    @PostMapping("/{restaurantID}/customers")
-    public OnlineCustomer addCustomer(@PathVariable UUID restaurantID, @RequestBody String email) {
-        Optional<Restaurant> restaurant = findRestaurantById(restaurantID);
-        if (restaurant.isPresent()) {
-            OnlineCustomer newCustomer = new OnlineCustomer(email);
-            restaurant.get().addCustomer(newCustomer);
-            return newCustomer;
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found");
-    }
-
-    @GetMapping("/{restaurantID}/tables")
-    public List<Table> getTables(@PathVariable UUID restaurantID) {
-        Optional<Restaurant> restaurant = findRestaurantById(restaurantID);
-        return restaurant.map(Restaurant::getTables).orElse(Collections.emptyList());
-    }
-
-    @PutMapping("/{restaurantID}/tables/{tableID}")
-    public void occupyTable(@PathVariable UUID restaurantID, @PathVariable UUID tableID) {
-        Optional<Table> table = findTableById(restaurantID, tableID);
-        if (table.isPresent()) {
-            Table occupiedTable = table.get();
-            // TODO meter este chequeo dentro del isOccupied
-            if (occupiedTable.isOccupied()) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Table is already occupied");
-            }
-            occupiedTable.setOccupied(true);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Table not found");
-        }
-    }
-
-
-
-    @PostMapping("/{restaurantID}/tables/{tableID}/orders")
-    public Order createTableOrder(@PathVariable UUID restaurantID, @PathVariable UUID tableID, @RequestBody List<OrderItem> items) {
-        // TODO aca validar que este a menos de 50mts y que currentOrder sea null o este en estado delivered
-        Optional<Restaurant> restaurant = findRestaurantById(restaurantID);
-        Optional<Table> table = findTableById(restaurantID, tableID);
-        if (restaurant.isPresent() && table.isPresent()) {
-            Order newOrder = new Order(Optional.empty(), Optional.of(tableID), items);
-            restaurant.get().addOrder(newOrder);
-            table.get().setCurrentOrder(newOrder);
-            return newOrder;
-        }
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found");
-    }
-
-     private Optional<Table> findTableById(UUID restaurantID, UUID tableID) {
-        Optional<Restaurant> restaurant = findRestaurantById(restaurantID);
-        if (restaurant.isPresent()) {
-            return restaurant.get().getTables().stream()
-                    .filter(table -> table.getTableID().equals(tableID))
-                    .findFirst();
-        }
-        return Optional.empty();
-    }
-    private Optional<OnlineCustomer> findOnlineCustomerById(UUID restaurantID, UUID customerID) {
-        Optional<Restaurant> restaurant = findRestaurantById(restaurantID);
-        if (restaurant.isPresent()) {
-            return restaurant.get().getCustomers().stream()
-                    .filter(customer -> customer.getCustomerID().equals(customerID))
-                    .findFirst();
-        }
-        return Optional.empty();
-    }
-     */
 }

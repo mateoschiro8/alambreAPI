@@ -5,10 +5,12 @@ import java.util.List;
 public class OrderInput {
     private Integer tableNumber;
     private List<OrderItem> items;
+    private Coordinate userLocation;
 
-    public OrderInput(Integer tableNumber, List<OrderItem> items) {
+    public OrderInput(Integer tableNumber, List<OrderItem> items, Coordinate location) {
         this.tableNumber = tableNumber;
         this.items = items;
+        this.userLocation = location;
     }
 
     public Integer getTableNumber() {
@@ -22,5 +24,11 @@ public class OrderInput {
     }
     public void setItems(List<OrderItem> items) {
         this.items = items;
+    }
+    public Coordinate getUserLocation() {
+        return userLocation;
+    }
+    public void setUserLocation(Coordinate location) {
+        this.userLocation = location;
     }
 }

@@ -19,9 +19,6 @@ public class Order {
     public void updateStatus(OrderStatus newStatus) {
         if (this.status.canTransitionTo(newStatus)) {
             this.status = newStatus;
-            if (this.status.shouldNotify()) {
-                // TODO notify
-            }
         } else {
             throw new IllegalStateException("Invalid state transition from " + this.status + " to " + newStatus);
         }
