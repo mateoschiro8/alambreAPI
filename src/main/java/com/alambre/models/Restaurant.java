@@ -14,6 +14,8 @@ public class Restaurant {
     private String number;
     private Coordinate location;
     private List<String> images;
+    private String openingTime;
+    private String closingTime;
 
     private List<MenuItem> menu;
     private List<Order> orders;
@@ -32,6 +34,8 @@ public class Restaurant {
         this.location = input.getLocation();
         this.images = input.getImages();
         this.menu = input.getMenu();
+        this.openingTime = input.getOpeningTime();
+        this.closingTime = input.getClosingTime();
 
         this.orders = new ArrayList<>();
 
@@ -132,5 +136,13 @@ public class Restaurant {
     public List<Order> getOrders() {
         return orders;
     }
+
+    public String getOpeningTime() { return openingTime; }
+
+    public void setOpeningTime(String openingTime) { this.openingTime = openingTime; }
+
+    public String getClosingTime() { return closingTime; }
+
+    public void setClosingTime(String closingTime) { this.closingTime = closingTime; }
 
 }

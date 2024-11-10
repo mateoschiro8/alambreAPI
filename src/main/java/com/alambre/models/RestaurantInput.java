@@ -9,14 +9,18 @@ public class RestaurantInput {
     private List<String> images;
     private List<MenuItem> menu; 
     private int numberOfTables; 
+    private String openingTime;
+    private String closingTime;
 
-    public RestaurantInput(String name, String number, Coordinate location, List<String> images, List<MenuItem> menu, int numberOfTables) {
+    public RestaurantInput(String name, String number, Coordinate location, List<String> images, List<MenuItem> menu, int numberOfTables, String openingTime, String closingTime) {
         this.name = name;
         this.number = number;
         this.location = location;
         this.images = images;
         this.menu = menu;
         this.numberOfTables = numberOfTables;
+        this.openingTime = openingTime;
+        this.closingTime = closingTime;
     }
 
     public String getName() {
@@ -58,4 +62,12 @@ public class RestaurantInput {
     public void setNumberOfTables(int numberOfTables) {
         this.numberOfTables = numberOfTables;
     }
+
+    public String getOpeningTime() { return openingTime; }
+
+    public void setOpeningTime(String openingTime) { this.openingTime = openingTime; }
+
+    public String getClosingTime() { return closingTime; }
+
+    public void setClosingTime(String closingTime) { this.closingTime = closingTime; }
 }
