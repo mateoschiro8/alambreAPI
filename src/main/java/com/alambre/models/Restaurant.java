@@ -18,8 +18,7 @@ public class Restaurant {
     private List<MenuItem> menu;
     private List<Order> orders;
 
-    private Integer maxTables;
-    private HashMap <Integer,Integer> tables;
+    private HashMap <Integer,Integer> tableOrders;
 
     public Restaurant(Integer restaurantID, RestaurantInput input) {
         this.id = restaurantID;
@@ -34,11 +33,10 @@ public class Restaurant {
 
         this.orders = new ArrayList<>();
 
-        this.maxTables = input.getNumberOfTables();
-        this.tables = new HashMap<>();
+        this.tableOrders = new HashMap<>();
 
-        for(int i = 1; i <= this.maxTables; i++) {
-            this.tables.put(i, 0);
+        for(int i = 1; i <= input.getNumberOfTables(); i++) {
+            this.tableOrders.put(i, 0);
         }
     }
 
@@ -46,7 +44,7 @@ public class Restaurant {
         Integer tableNumber = input.getTableNumber();
 
         if (tableNumber != 0) {
-            if(!(this.tables.get(tableNumber) == 0) || input.getTableNumber() > this.maxTables)
+            if(!(this.tableOrders.get(tableNumber) == 0) || input.getTableNumber() > this.tableOrders.size())
                 return false;
         }
 
@@ -56,14 +54,14 @@ public class Restaurant {
         this.orders.add(order);
         
         if (tableNumber != 0) {
-            this.tables.put(tableNumber, order.getId());
+            this.tableOrders.put(tableNumber, order.getId());
         } 
 
         return true;
     }
 
     public void emptyTable(Integer tableID) {
-        this.tables.put(tableID, 0);
+        this.tableOrders.put(tableID, 0);
     }
 
     public Order getOrderById(Integer orderID) {
