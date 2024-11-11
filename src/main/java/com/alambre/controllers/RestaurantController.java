@@ -6,7 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,9 +35,14 @@ public class RestaurantController {
     }
 
     @PostMapping("")
-    public void addRestaurant(@RequestBody RestaurantInput restaurantInput) {
+    public ResponseEntity<Map<String, Integer>> addRestaurant(@RequestBody RestaurantInput restaurantInput) {
         Restaurant restaurant = new Restaurant(restaurants.size() + 1, restaurantInput);       
         restaurants.put(restaurant.getID(), restaurant);
+
+        Map<String, Integer> responseBody = new HashMap<>();
+        responseBody.put("id", restaurant.getID());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
     }
 
     @GetMapping("/{restaurantID}")
@@ -44,7 +52,23 @@ public class RestaurantController {
 
     @DeleteMapping("")
     public void emptyRestaurants() {
+        File qrDirectory = new File("src/main/resources/static/qrcodes");
+
+        // Llama a la función recursiva para borrar todo el contenido
+        deleteDirectoryRecursively(qrDirectory);
         restaurants.clear();
+    }
+
+    private void deleteDirectoryRecursively(File directory) {
+        if (directory.exists()) {
+            for (File file : directory.listFiles()) {
+                if (file.isDirectory()) {
+                    // Llamada recursiva si es un directorio
+                    deleteDirectoryRecursively(file);
+                }
+                file.delete();  // Elimina el archivo o el directorio vacío
+            }
+        }
     }
 
     // Aca habria que pegarle desde el qr, o ver de armar otro endpoint
@@ -66,10 +90,10 @@ public class RestaurantController {
     }
 
     @PostMapping("/{restaurantID}/orders")
-    public ResponseEntity<String> addOrder(@PathVariable Integer restaurantID, @RequestBody OrderInput orderInput) {
+    public ResponseEntity<Map<String, Integer>> addOrder(@PathVariable Integer restaurantID, @RequestBody OrderInput orderInput) {
         return findRestaurantById(restaurantID)
                 .map(restaurant -> restaurant.addOrder(orderInput))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Restaurant not found."));
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(new HashMap<>()));
     }
     
     @GetMapping("/{restaurantID}/orders/{orderID}")
@@ -82,8 +106,10 @@ public class RestaurantController {
     }
 
     @PatchMapping("/{restaurantID}/orders/{orderID}")
-    public void updateOrderStatus(@PathVariable Integer restaurantID, @PathVariable Integer orderID, @RequestBody OrderStatus newStatus) {
-        
+    public void updateOrderStatus(@PathVariable Integer restaurantID, @PathVariable Integer orderID, @RequestBody String status) {
+
+        OrderStatus newStatus = OrderStatus.valueOf(status);
+
         Optional<Restaurant> resto = findRestaurantById(restaurantID);
         Optional<Order> orderOptional = findRestaurantById(restaurantID)
                 .flatMap(restaurant -> restaurant.getOrders().stream()

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Restaurant {
 
@@ -60,23 +61,14 @@ public class Restaurant {
         }
     }
 
-    public ResponseEntity<String> addOrder(OrderInput input) {
+    public ResponseEntity<Map<String, Integer>> addOrder(OrderInput input) {
         Integer tableNumber = input.getTableNumber();
 
+        Map<String, Integer> responseBody = new HashMap<>();
+
         if (tableNumber != 0) {
-            if (input.getTableNumber() > this.tableOrders.size()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("El número de mesa es inválido.");
-            }
-
-            if (this.tableOrders.get(tableNumber) != 0) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("La mesa ya tiene una orden asignada.");
-            }
-
-            if (!this.isNear(input.getUserLocation())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body("El usuario no está cerca del restaurante.");
+            if (input.getTableNumber() > this.tableOrders.size() || this.tableOrders.get(tableNumber) != 0 || !this.isNear(input.getUserLocation())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
             }
         }
 
@@ -89,8 +81,8 @@ public class Restaurant {
             this.tableOrders.put(tableNumber, order.getId());
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Orden agregada exitosamente.");
+        responseBody.put("id", order.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
     }
 
     public void emptyTable(Integer tableID) {
