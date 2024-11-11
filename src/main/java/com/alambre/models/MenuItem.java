@@ -2,22 +2,22 @@ package com.alambre.models;
 
 public class MenuItem {
 
-    private String name;
+    private String item;
     private double price;
 
     public MenuItem() {}
 
-    public MenuItem(String name, double price) {
-        this.name = name;
+    public MenuItem(String item, double price) {
+        this.item = item;
         this.price = price;
     }
 
-    public String getName() {
-        return name;
+    public String getItem() {
+        return item;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setItem(String item) {
+        this.item = item;
     }
 
     public double getPrice() {

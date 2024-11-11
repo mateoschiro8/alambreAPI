@@ -1,5 +1,9 @@
 package com.alambre.models;
 
+import org.apache.coyote.Response;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,12 +60,24 @@ public class Restaurant {
         }
     }
 
-    public boolean addOrder(OrderInput input) {
+    public ResponseEntity<String> addOrder(OrderInput input) {
         Integer tableNumber = input.getTableNumber();
 
         if (tableNumber != 0) {
-            if(input.getTableNumber() > this.tableOrders.size() || !(this.tableOrders.get(tableNumber) == 0) || !this.isNear(input.getUserLocation()))
-                return false;
+            if (input.getTableNumber() > this.tableOrders.size()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("El número de mesa es inválido.");
+            }
+
+            if (this.tableOrders.get(tableNumber) != 0) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("La mesa ya tiene una orden asignada.");
+            }
+
+            if (!this.isNear(input.getUserLocation())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("El usuario no está cerca del restaurante.");
+            }
         }
 
         Integer orderID = this.orders.size() + 1;
@@ -71,9 +87,10 @@ public class Restaurant {
         
         if (tableNumber != 0) {
             this.tableOrders.put(tableNumber, order.getId());
-        } 
+        }
 
-        return true;
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("Orden agregada exitosamente.");
     }
 
     public void emptyTable(Integer tableID) {

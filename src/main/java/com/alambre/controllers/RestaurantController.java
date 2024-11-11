@@ -2,6 +2,8 @@ package com.alambre.controllers;
 
 import com.alambre.models.*;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -64,10 +66,10 @@ public class RestaurantController {
     }
 
     @PostMapping("/{restaurantID}/orders")
-    public boolean addOrder(@PathVariable Integer restaurantID, @RequestBody OrderInput orderInput) {
+    public ResponseEntity<String> addOrder(@PathVariable Integer restaurantID, @RequestBody OrderInput orderInput) {
         return findRestaurantById(restaurantID)
                 .map(restaurant -> restaurant.addOrder(orderInput))
-                .orElse(false);
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body("Restaurant not found."));
     }
     
     @GetMapping("/{restaurantID}/orders/{orderID}")
