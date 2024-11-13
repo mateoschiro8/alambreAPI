@@ -11,8 +11,6 @@ public enum OrderStatus {
 
     public boolean canTransitionTo(OrderStatus newStatus) {
 
-        return true; // Más fácil
-        /*
         switch (this) {
             case CREATED:
                 return newStatus == ACCEPTED || newStatus == REJECTED;
@@ -27,7 +25,5 @@ public enum OrderStatus {
             default:
                 return false;
         }
-
-         */
     }
 }
