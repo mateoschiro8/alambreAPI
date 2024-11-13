@@ -14,7 +14,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "https://p11-p11.github.io")
 @RequestMapping("/restaurants")
 public class RestaurantController {
 
