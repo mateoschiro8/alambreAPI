@@ -51,9 +51,9 @@ public class Restaurant {
     }
 
     public void generateTableQR(Integer tableID) {
-        String frontBaseURL = "https://alambre-5fd9d904972d.herokuapp.com";
+        String frontBaseURL = "https://p11-p11.github.io/front_atado_con_alambre";
         
-        String url = String.format("%s/user/order/%d?table=&d", frontBaseURL, this.getID(), tableID);
+        String url = String.format("%s/user/order/%d?table=%d", frontBaseURL, this.getID(), tableID);
 
         String fileName = this.getName() + "/table_" + tableID;
         if (QRGenerator.getInstance().saveQRCodeImage(url, fileName)) {
