@@ -1,20 +1,16 @@
 package com.alambre.models;
 
-import org.apache.coyote.Response;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 public class Restaurant {
 
-    private Integer id;
+    private final Integer id;
 
     private String name;
-    private String number;
+    private String phoneNumber;
     private Coordinate location;
     private String logoUrl;
     private List<String> images;
@@ -25,13 +21,13 @@ public class Restaurant {
     private List<Order> orders;
     private List<String> qrs;
 
-    private HashMap <Integer,Integer> tableOrders;
+    private HashMap <Integer, Optional<Order>> tableOrders;
 
     public Restaurant(Integer restaurantID, RestaurantInput input) {
         this.id = restaurantID;
 
         this.name = input.getName();
-        this.number = input.getNumber();
+        this.phoneNumber = input.getNumber();
         this.location = input.getLocation();
         this.logoUrl = input.getLogoUrl();
         this.images = input.getImages();
@@ -45,7 +41,7 @@ public class Restaurant {
         this.qrs = new ArrayList<>();
 
         for(int i = 1; i <= input.getNumberOfTables(); i++) {
-              this.tableOrders.put(i, 0);
+              this.tableOrders.put(i, Optional.empty());
               this.generateTableQR(i);
         }
     }
@@ -55,117 +51,65 @@ public class Restaurant {
         
         String url = String.format("%s/user/order/%d?table=&d", frontBaseURL, this.getID(), tableID);
 
-        String fileName = this.getName() + "/table_" + tableID;
+        String fileName = this.name + "/table_" + tableID;
         if (QRGenerator.getInstance().saveQRCodeImage(url, fileName)) {
             this.qrs.add("/qrcodes/" + fileName + ".png");
         }
     }
 
-    public ResponseEntity<Map<String, Integer>> addOrder(OrderInput input) {
+
+    public Order addOrder(OrderInput input) throws IllegalArgumentException {
         Integer tableNumber = input.getTableNumber();
 
-        Map<String, Integer> responseBody = new HashMap<>();
-
-        if (tableNumber != 0) {
-            if (input.getTableNumber() > this.tableOrders.size() || this.tableOrders.get(tableNumber) != 0 || !this.isNear(input.getUserLocation())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
-            }
-        }
+        validateOrderInput(input, tableNumber);
 
         Integer orderID = this.orders.size() + 1;
-
         Order order = new Order(input, orderID);
+       
         this.orders.add(order);
-        
-        if (tableNumber != 0) {
-            this.tableOrders.put(tableNumber, order.getId());
-        }
 
-        responseBody.put("id", order.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseBody);
+        this.tableOrders.put(input.getTableNumber(), Optional.of(order));
+        
+        return order;
+    }
+
+    private void validateOrderInput(OrderInput input, Integer tableNumber) {
+        if (tableNumber > this.tableOrders.size() || this.tableOrders.get(tableNumber).isPresent() || !isNear(input.getUserLocation())) {
+            throw new IllegalArgumentException("Invalid table number or location");
+        };
     }
 
     public void emptyTable(Integer tableID) {
-        this.tableOrders.put(tableID, 0);
+        this.tableOrders.put(tableID, Optional.empty());
     }
 
-    public Order getOrderById(Integer orderID) {
+    public Optional<Order> getOrderById(Integer orderID) {
         return this.orders.stream()
                 .filter(order -> order.getId().equals(orderID))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     public void updateOrderStatus(Integer orderId, OrderStatus newStatus) {
-        Order order = this.getOrderById(orderId);
-        if (order != null) {
-            order.updateStatus(newStatus);
-        }
+        getOrderById(orderId).ifPresent(order -> order.updateStatus(newStatus));
     }
 
+    final int maxDistanceInMeters = 50;
+
     public boolean isNear(Coordinate coordinate) {
-        return location.calculateDistanceTo(coordinate.getLatitude(), coordinate.getLongitude()) <= 50;
+        return location.calculateDistanceTo(coordinate.getLatitude(), coordinate.getLongitude()) <= maxDistanceInMeters;
     }
 
     public Integer getID() {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getNumber() {
-        return number;
-    }
-
-    public void setNumber(String number) {
-        this.number = number;
-    }
-
-    public Coordinate getLocation() {
-        return location;
-    }
-
-    public void setLocation(Coordinate location) {
-        this.location = location;
-    }
-
-    public String getLogoUrl() { return logoUrl; }
-
-    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
-
-    public List<String> getImages() { return images; }
-
-    public void setImages(List<String> images) { this.images = images; }
-
     public List<MenuItem> getMenu() {
         return menu;
-    }
-
-    public void setMenu(List<MenuItem> menu) {
-        this.menu = menu;
     }
 
     public List<Order> getOrders() {
         return orders;
     }
-
-    public String getOpeningTime() { return openingTime; }
-
-    public void setOpeningTime(String openingTime) { this.openingTime = openingTime; }
-
-    public String getClosingTime() { return closingTime; }
-
-    public void setClosingTime(String closingTime) { this.closingTime = closingTime; }
 
     public List<String> getQRs() { return qrs; }
 }

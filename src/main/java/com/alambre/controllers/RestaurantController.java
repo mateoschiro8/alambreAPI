@@ -3,6 +3,7 @@ package com.alambre.controllers;
 import com.alambre.models.*;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,8 +47,8 @@ public class RestaurantController {
     }
 
     @GetMapping("/{restaurantID}")
-    public Restaurant getRestaurant(@PathVariable Integer restaurantID) {
-        return findRestaurantById(restaurantID).orElse(null);
+    public ResponseEntity<Restaurant> getRestaurant(@PathVariable Integer restaurantID) {
+        return findRestaurantById(restaurantID);
     }
 
     @DeleteMapping("")
@@ -71,10 +72,10 @@ public class RestaurantController {
         }
     }
 
-    // Aca habria que pegarle desde el qr, o ver de armar otro endpoint
     @GetMapping("/{restaurantID}/menu")
-    public List<MenuItem> getMenu(@PathVariable Integer restaurantID) {
-        return findRestaurantById(restaurantID).map(Restaurant::getMenu).orElse(null);
+    public ResponseEntity<List<MenuItem>> getMenu(@PathVariable Integer restaurantID) {
+        return findRestaurantById(restaurantID)
+                .map(restaurant -> ResponseEntity.ok(restaurant.getMenu())); 
     }
 
     @GetMapping("/{restaurantID}/qrs")
@@ -90,12 +91,24 @@ public class RestaurantController {
     }
 
     @PostMapping("/{restaurantID}/orders")
-    public ResponseEntity<Map<String, Integer>> addOrder(@PathVariable Integer restaurantID, @RequestBody OrderInput orderInput) {
+    public ResponseEntity<Order> addOrder(@PathVariable Integer restaurantID, @RequestBody OrderInput orderInput) {
         return findRestaurantById(restaurantID)
                 .map(restaurant -> restaurant.addOrder(orderInput))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(new HashMap<>()));
     }
     
+    @PostMapping("/{restaurantID}/orders")
+public ResponseEntity<Order> addOrder(@PathVariable Integer restaurantID, @RequestBody OrderInput orderInput) {
+    return findRestaurantById(restaurantID)
+            .map(restaurant -> {
+                Order newOrder = restaurant.addOrder(orderInput).getBody().get("order"); // Assuming addOrder creates and returns an Order
+                return ResponseEntity.status(HttpStatus.CREATED).body(newOrder);
+            })
+            .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+}
+
+
+
     @GetMapping("/{restaurantID}/orders/{orderID}")
     public Order getOrder(@PathVariable Integer restaurantID, @PathVariable Integer orderID) {
         return findRestaurantById(restaurantID)
@@ -128,7 +141,9 @@ public class RestaurantController {
         }
     }
 
-    private Optional<Restaurant> findRestaurantById(Integer restaurantID) {
-        return Optional.ofNullable(restaurants.get(restaurantID));
+    private ResponseEntity<Restaurant> findRestaurantById(Integer restaurantID) {
+        return Optional.ofNullable(restaurants.get(restaurantID))
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 }
