@@ -51,7 +51,7 @@ public class Restaurant {
     }
 
     public void generateTableQR(Integer tableID) {
-        String frontBaseURL = "urlFront";
+        String frontBaseURL = "https://alambre-5fd9d904972d.herokuapp.com/";
         
         String url = String.format("%s/user/order/%d?table=&d", frontBaseURL, this.getID(), tableID);
 
