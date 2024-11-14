@@ -2,10 +2,15 @@ package com.alambre.controllers;
 
 import com.alambre.models.*;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -83,6 +88,28 @@ public class RestaurantController {
         return findRestaurantById(restaurantID)
                 .map(Restaurant::getQRs)
                 .orElse(null);
+    }
+
+    @GetMapping("/{restaurantID}/qrs/{tableNumber}")
+    public ResponseEntity<byte[]> getQRCode(@PathVariable Integer restaurantID, @PathVariable Integer tableNumber) {
+        Optional<Restaurant> restaurantOptional = findRestaurantById(restaurantID);
+
+        if (restaurantOptional.isPresent()) {
+            try {
+                BufferedImage qrImage = restaurantOptional.get().generateTableQR(tableNumber);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                ImageIO.write(qrImage, "png", baos);
+                byte[] imageBytes = baos.toByteArray();
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.IMAGE_PNG);
+                return ResponseEntity.ok().headers(headers).body(imageBytes);
+            } catch (Exception e) {
+                return ResponseEntity.internalServerError().build();
+            }
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/{restaurantID}/orders")

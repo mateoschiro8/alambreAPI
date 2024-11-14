@@ -4,6 +4,7 @@ import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,29 +37,33 @@ public class Restaurant {
         this.logoUrl = input.getLogoUrl();
         this.images = input.getImages();
         this.menu = input.getMenu();
+        this.tableOrders = new HashMap<>();
+        for(int i = 1; i <= input.getNumberOfTables(); i++) {
+            this.tableOrders.put(i, 0);
+            // this.generateTableQR(i);
+        }
         this.openingTime = input.getOpeningTime();
         this.closingTime = input.getClosingTime();
 
         this.orders = new ArrayList<>();
 
-        this.tableOrders = new HashMap<>();
+
         this.qrs = new ArrayList<>();
 
-        for(int i = 1; i <= input.getNumberOfTables(); i++) {
-              this.tableOrders.put(i, 0);
-              this.generateTableQR(i);
-        }
     }
 
-    public void generateTableQR(Integer tableID) {
+    public BufferedImage generateTableQR(Integer tableID) {
         String frontBaseURL = "https://p11-p11.github.io/front_atado_con_alambre";
         
         String url = String.format("%s/user/order/%d?table=%d", frontBaseURL, this.getID(), tableID);
 
-        String fileName = this.getName() + "/table_" + tableID;
+        return QRGenerator.getInstance().generateQRCodeImage(url);
+
+        /* String fileName = this.getName() + "/table_" + tableID;
         if (QRGenerator.getInstance().saveQRCodeImage(url, fileName)) {
             this.qrs.add("/qrcodes/" + fileName + ".png");
         }
+         */
     }
 
     public ResponseEntity<Map<String, Integer>> addOrder(OrderInput input) {
